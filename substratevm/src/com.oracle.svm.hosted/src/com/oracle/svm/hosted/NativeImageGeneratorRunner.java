@@ -464,7 +464,7 @@ public class NativeImageGeneratorRunner {
             totalTimer.print();
             if (imageName != null && generator != null) {
                 if (ImageBuildStatistics.Options.CollectImageBuildStatistics.getValue(parsedHostedOptions)) {
-                    generator.printImageBuildStatistics(imageName);
+                    generator.printImageBuildStatistics(imageName, ImageBuildStatistics.Options.ImageBuildStatisticsFile.getValue(parsedHostedOptions));
                 }
                 generator.reportBuildArtifacts(imageName);
             }
