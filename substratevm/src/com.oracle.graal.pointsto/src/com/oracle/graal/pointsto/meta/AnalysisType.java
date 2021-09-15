@@ -107,6 +107,9 @@ public class AnalysisType implements WrappedJavaType, OriginalClassProvider, Com
     private final Set<AnalysisType> subTypes;
     AnalysisType superClass;
 
+    private final Set<AnalysisType> instantiatedSubtypes = ConcurrentHashMap.newKeySet();
+    private final Set<AnalysisMethod> invokedMethods = ConcurrentHashMap.newKeySet();
+
     private final int id;
 
     private final JavaKind storageKind;
@@ -428,7 +431,19 @@ public class AnalysisType implements WrappedJavaType, OriginalClassProvider, Com
         assert isArray() || (isInstanceClass() && !Modifier.isAbstract(getModifiers())) : this;
         universe.hostVM.checkForbidden(this, usageKind);
 
-        PointsToAnalysis bb = ((PointsToAnalysis) universe.getBigbang());
+        AnalysisType current = this;
+        while (current != null) {
+            current.instantiatedSubtypes.add(this);
+            current = current.getSuperclass();
+        }
+
+        // todo refactor
+        BigBang bigbang = universe.getBigbang();
+        if (!(bigbang instanceof PointsToAnalysis)) {
+            return;
+        }
+
+        PointsToAnalysis bb = ((PointsToAnalysis) bigbang);
         TypeState typeState = TypeState.forExactType(bb, this, true);
         TypeState typeStateNonNull = TypeState.forExactType(bb, this, false);
 
@@ -445,6 +460,10 @@ public class AnalysisType implements WrappedJavaType, OriginalClassProvider, Com
      * through type flows.
      */
     public void registerAsAssignable(BigBang bb) {
+        // todo refactor
+        if (!(bb instanceof PointsToAnalysis)) {
+            return;
+        }
         TypeState typeState = TypeState.forType(((PointsToAnalysis) bb), this, true);
         /*
          * Register the assignable type with its super types. Skip this type, it can lead to a
@@ -1116,5 +1135,13 @@ public class AnalysisType implements WrappedJavaType, OriginalClassProvider, Com
 
     public interface InstanceFieldsInterceptor {
         ResolvedJavaField[] interceptInstanceFields(AnalysisUniverse universe, ResolvedJavaField[] fields, AnalysisType type);
+    }
+
+    public Set<AnalysisType> getInstantiatedSubtypes() {
+        return instantiatedSubtypes;
+    }
+
+    public Set<AnalysisMethod> getInvokedMethods() {
+        return invokedMethods;
     }
 }

@@ -229,7 +229,13 @@ public class AnalysisMethod implements WrappedJavaMethod, GraphProvider, Origina
         if (invokedBy != null && invoke != null) {
             invokedBy.put(invoke, Boolean.TRUE);
         }
-        return AtomicUtils.atomicMark(isInvoked);
+        if (AtomicUtils.atomicMark(isInvoked)) {
+            getDeclaringClass()
+                            .getInvokedMethods()
+                            .add(this);
+            return true;
+        }
+        return false;
     }
 
     public boolean registerAsImplementationInvoked(InvokeTypeFlow invoke) {

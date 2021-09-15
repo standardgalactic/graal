@@ -35,6 +35,7 @@ import org.graalvm.compiler.api.replacements.SnippetReflectionProvider;
 import org.graalvm.compiler.debug.DebugContext;
 import org.graalvm.compiler.debug.DebugHandlersFactory;
 import org.graalvm.compiler.graph.NodeSourcePosition;
+import org.graalvm.compiler.nodes.spi.Replacements;
 import org.graalvm.compiler.options.OptionValues;
 
 import java.io.PrintWriter;
@@ -98,6 +99,8 @@ public interface BigBang extends ReachabilityAnalysis, HeapScanning {
     boolean extendedAsserts();
 
     void runAnalysis(DebugContext debug, Function<AnalysisUniverse, Boolean> duringAnalysisAction) throws InterruptedException;
+
+    Replacements getReplacements();
 
     /** You can blacklist certain callees here. */
     @SuppressWarnings("unused")
