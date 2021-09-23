@@ -32,6 +32,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,6 +111,7 @@ public class AnalysisMethod implements WrappedJavaMethod, GraphProvider, Origina
 
     private ConcurrentMap<InvokeTypeFlow, Object> invokedBy;
     private ConcurrentMap<InvokeTypeFlow, Object> implementationInvokedBy;
+    private Object reason;
 
     public AnalysisMethod(AnalysisUniverse universe, ResolvedJavaMethod wrapped) {
         this.universe = universe;
@@ -675,5 +677,16 @@ public class AnalysisMethod implements WrappedJavaMethod, GraphProvider, Origina
 
     public void setAnalyzedGraph(StructuredGraph analyzedGraph) {
         this.analyzedGraph = analyzedGraph;
+    }
+
+    public void setReason(Object reason) {
+        this.reason = reason;
+    }
+
+    public String getReason() {
+        if (reason instanceof StackTraceElement[]) {
+            return Arrays.toString(((StackTraceElement[]) reason));
+        }
+        return reason.toString();
     }
 }
