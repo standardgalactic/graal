@@ -431,11 +431,7 @@ public class AnalysisType implements WrappedJavaType, OriginalClassProvider, Com
         assert isArray() || (isInstanceClass() && !Modifier.isAbstract(getModifiers())) : this;
         universe.hostVM.checkForbidden(this, usageKind);
 
-        AnalysisType current = this;
-        while (current != null) {
-            current.instantiatedSubtypes.add(this);
-            current = current.getSuperclass();
-        }
+        forAllSuperTypes(t -> t.instantiatedSubtypes.add(this));
 
         // todo refactor
         BigBang bigbang = universe.getBigbang();
@@ -517,7 +513,7 @@ public class AnalysisType implements WrappedJavaType, OriginalClassProvider, Com
      * reachable directly, but also through java.lang.GenericDeclaration, so it will be processed
      * twice.
      */
-    private void forAllSuperTypes(Consumer<AnalysisType> superTypeConsumer) {
+    public void forAllSuperTypes(Consumer<AnalysisType> superTypeConsumer) {
         forAllSuperTypes(superTypeConsumer, true);
     }
 
