@@ -363,12 +363,27 @@ suite = {
             ],
             "checkstyle": "com.oracle.graal.pointsto",
             "javaCompliance": "8+",
-            "checkstyleVersion" : "8.36.1",
+            "checkstyleVersion": "8.36.1",
             "annotationProcessors": [
                 "compiler:GRAAL_PROCESSOR",
             ],
             "workingSets": "SVM",
         },
+
+        "com.oracle.graal.reachability": {
+            "subDir": "src",
+            "sourceDirs": ["src"],
+            "dependencies": [
+                "com.oracle.graal.pointsto",
+            ],
+            "checkstyle": "com.oracle.graal.pointsto",
+            "javaCompliance": "8+",
+            "annotationProcessors": [
+                "compiler:GRAAL_PROCESSOR",
+            ],
+            "workingSets": "SVM",
+        },
+
         "com.oracle.svm.hosted": {
             "subDir": "src",
             "sourceDirs": ["src"],
