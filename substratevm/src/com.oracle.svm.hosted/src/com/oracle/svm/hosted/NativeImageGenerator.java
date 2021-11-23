@@ -62,6 +62,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.oracle.graal.reachability.MethodSummary;
+import com.oracle.graal.reachability.SimpleInMemoryMethodSummaryProvider;
+import com.oracle.graal.reachability.summaries.MethodSummaryStorage;
 import com.oracle.svm.core.code.ImageCodeInfo;
 import com.oracle.svm.hosted.analysis.NativeImageReachabilityAnalysis;
 import org.graalvm.collections.EconomicSet;
@@ -314,6 +316,8 @@ public class NativeImageGenerator {
     private Pair<Method, CEntryPointData> mainEntryPoint;
 
     final Map<ArtifactType, List<Path>> buildArtifacts = new EnumMap<>(ArtifactType.class);
+
+    private MethodSummaryStorage methodSummaryStorage;
 
     public NativeImageGenerator(ImageClassLoader loader, HostedOptionProvider optionProvider, Pair<Method, CEntryPointData> mainEntryPoint) {
         this.loader = loader;
@@ -675,6 +679,10 @@ public class NativeImageGenerator {
 
                 AfterImageWriteAccessImpl afterConfig = new AfterImageWriteAccessImpl(featureHandler, loader, hUniverse, inv, tmpDir, image.getImageKind(), debug);
                 featureHandler.forEachFeature(feature -> feature.afterImageWrite(afterConfig));
+            }
+
+            if (methodSummaryStorage != null) {
+                methodSummaryStorage.persistData();
             }
         }
     }
@@ -1146,7 +1154,7 @@ public class NativeImageGenerator {
         }
     }
 
-    public static Inflation createBigBang(OptionValues options, TargetDescription target, AnalysisUniverse aUniverse, ForkJoinPool analysisExecutor,
+    public Inflation createBigBang(OptionValues options, TargetDescription target, AnalysisUniverse aUniverse, ForkJoinPool analysisExecutor,
                     Runnable heartbeatCallback, AnalysisMetaAccess aMetaAccess, AnalysisConstantReflectionProvider aConstantReflection, WordTypes aWordTypes,
                     SnippetReflectionProvider aSnippetReflection, AnnotationSubstitutionProcessor annotationSubstitutionProcessor, ForeignCallsProvider aForeignCalls,
                     ClassInitializationSupport classInitializationSupport, Providers originalProviders) {
@@ -1171,8 +1179,12 @@ public class NativeImageGenerator {
                         aSnippetReflection, aWordTypes, platformConfig, aMetaAccessExtensionProvider, originalProviders.getLoopsDataProvider());
 
         if (NativeImageOptions.UseExperimentalReachabilityAnalysis.getValue()) {
+            SimpleInMemoryMethodSummaryProvider simpleInMemoryMethodSummaryProvider = ((SimpleInMemoryMethodSummaryProvider) HostedConfiguration.instance().createMethodSummaryProvider(aUniverse,
+                            aMetaAccess));
+            methodSummaryStorage = new MethodSummaryStorage(new ResolutionStrategyImpl(loader, aMetaAccess), simpleInMemoryMethodSummaryProvider, options);
+            methodSummaryStorage.loadData();
             return new NativeImageReachabilityAnalysis(options, aUniverse, aProviders, annotationSubstitutionProcessor, analysisExecutor, heartbeatCallback,
-                            HostedConfiguration.instance().createMethodSummaryProvider(aUniverse, aMetaAccess));
+                            methodSummaryStorage);
         }
         return new NativeImagePointsToAnalysis(options, aUniverse, aProviders, annotationSubstitutionProcessor, analysisExecutor, heartbeatCallback, new SubstrateUnsupportedFeatures());
     }
