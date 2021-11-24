@@ -47,8 +47,10 @@ import org.graalvm.compiler.nodes.ValuePhiNode;
 import org.graalvm.compiler.nodes.ValueProxyNode;
 import org.graalvm.compiler.nodes.spi.CoreProviders;
 import org.graalvm.compiler.nodes.virtual.EscapeObjectState;
+import org.graalvm.compiler.nodes.virtual.MaterializedObjectState;
 import org.graalvm.compiler.nodes.virtual.VirtualArrayNode;
 import org.graalvm.compiler.nodes.virtual.VirtualObjectNode;
+import org.graalvm.compiler.nodes.virtual.VirtualObjectState;
 import org.graalvm.compiler.phases.BasePhase;
 import org.graalvm.compiler.phases.common.CanonicalizerPhase;
 import org.graalvm.compiler.phases.common.util.EconomicSetNodeEventListener;
@@ -57,8 +59,6 @@ import org.graalvm.compiler.truffle.common.TruffleCompilerRuntime;
 import org.graalvm.compiler.truffle.compiler.PerformanceInformationHandler;
 import org.graalvm.compiler.truffle.compiler.substitutions.KnownTruffleTypes;
 import org.graalvm.compiler.truffle.options.PolyglotCompilerOptions;
-import org.graalvm.compiler.virtual.nodes.MaterializedObjectState;
-import org.graalvm.compiler.virtual.nodes.VirtualObjectState;
 
 import com.oracle.truffle.api.frame.FrameSlot;
 
