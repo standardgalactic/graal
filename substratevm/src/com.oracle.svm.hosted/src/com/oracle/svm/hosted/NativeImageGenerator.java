@@ -652,7 +652,7 @@ public class NativeImageGenerator {
             try (StopTimer t = new Timer(imageName, "write").start()) {
                 bb.getHeartbeatCallback().run();
                 BeforeImageWriteAccessImpl beforeConfig = new BeforeImageWriteAccessImpl(featureHandler, loader, imageName, image,
-                        runtime.getRuntimeConfig(), aUniverse, hUniverse, optionProvider, hMetaAccess, debug);
+                                runtime.getRuntimeConfig(), aUniverse, hUniverse, optionProvider, hMetaAccess, debug);
                 featureHandler.forEachFeature(feature -> feature.beforeImageWrite(beforeConfig));
 
                 /*
